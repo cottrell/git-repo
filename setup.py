@@ -117,13 +117,21 @@ class Buildout(Command):
 
 requirements_links = []
 
+try: # for pip >= 10
+    from pip._internal.req import parse_requirements
+    from pip._internal import download
+except ImportError: # for pip <= 9.0.3
+    from pip.req import parse_requirements
+    from pip import download
+
+
 def requirements(spec=None):
     spec = '{}{}.txt'.format('requirements',
             '-'+spec if spec else '')
     requires = []
 
-    requirements = pip.req.parse_requirements(
-        spec, session=pip.download.PipSession())
+    requirements = parse_requirements(
+        spec, session=download.PipSession())
 
     for item in requirements:
         if getattr(item, 'link', None):
